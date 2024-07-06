@@ -26,11 +26,20 @@ class _HomePageState extends State<HomePage> {
         profiles.addAll(
           event.docs.map((e) => ProfileModel.fromJson(e.data())).toList(),
         );
+        setState(() {});
       },
     );
   }
 
-  void onTap(DocumentSnapshot<Map<String, dynamic>> document) {}
+  @override
+  void dispose() {
+    super.dispose();
+    _subscription.cancel();
+  }
+
+  void onTap(ProfileModel profile) {
+    context.go('/profile-details', extra: profile);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +85,7 @@ class _HomePageState extends State<HomePage> {
           return MessageGridTile(
             index: index,
             profile: profile,
-            onTap: (doc) =>
-                onTap(doc as DocumentSnapshot<Map<String, dynamic>>),
+            onTap: () => onTap(profile),
           );
         },
       ),
@@ -88,7 +96,7 @@ class _HomePageState extends State<HomePage> {
 class MessageGridTile extends StatefulWidget {
   final ProfileModel profile;
   final int index;
-  final void Function(DocumentSnapshot) onTap;
+  final VoidCallback onTap;
 
   const MessageGridTile({
     super.key,
@@ -104,17 +112,38 @@ class MessageGridTile extends StatefulWidget {
 class _MessageGridTileState extends State<MessageGridTile> {
   @override
   Widget build(BuildContext context) {
-    return GridTile(
-      header: GridTileBar(
-        backgroundColor: Colors.black.withOpacity(0.5),
-        title: Text(widget.profile.name),
-      ),
-      footer: GridTileBar(
-        backgroundColor: Colors.black.withOpacity(0.5),
-        title: Text(widget.profile.dob.toString()),
-        subtitle: Text(widget.profile.type.name),
-      ),
-      child: Image.network(widget.profile.photos.first),
+    return Stack(
+      children: [
+        Image.network(
+          widget.profile.photos.first,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            color: Colors.black.withOpacity(0.5),
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      widget.profile.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
