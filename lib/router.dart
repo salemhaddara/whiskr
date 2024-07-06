@@ -6,15 +6,16 @@ import 'package:whiskr/view/profile_page.dart';
 import 'view/auth_page.dart';
 
 final GoRouter router = GoRouter(
-  redirect: (context, state) {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return '/auth';
-    } else {
-      return '/';
-    }
-  },
+  initialLocation: '/',
+  // redirect: (context, state) {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //
+  //   if (user == null) {
+  //     return '/auth';
+  //   } else {
+  //     return '/';
+  //   }
+  // },
   routes: [
     GoRoute(
       path: '/',
