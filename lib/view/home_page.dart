@@ -5,29 +5,41 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:whiskr/model/profile.dart';
+import 'package:whiskr/view/profile_page.dart';
+
+import '../chats/conversations_screen.dart';
 
 class RootView extends StatefulWidget {
-  final Widget child;
 
-  const RootView({super.key, required this.child});
+  const RootView({super.key});
 
   @override
   State<RootView> createState() => _RootViewState();
 }
 
 class _RootViewState extends State<RootView> {
+  final PageController controller = PageController();
+  int index = 0;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: index,
         onTap: (index) {
-          if (index == 0) {
-            context.go('/');
-          } else if (index == 1) {
-            context.go('/chats');
-          } else if (index == 2) {
-            context.go('/profile');
-          }
+          this.index = index;
+          setState(() {});
+          controller.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutQuart,
+          );
         },
         items: const [
           BottomNavigationBarItem(
@@ -45,9 +57,22 @@ class _RootViewState extends State<RootView> {
         ],
       ),
       appBar: AppBar(
-        title: const Text('Whisker'),
+        title: const Row(
+          children: [
+            Icon(Icons.pets),
+            SizedBox(width: 16),
+            Text('Whiskr'),
+          ],
+        ),
       ),
-      body: widget.child,
+      body: PageView(
+        controller: controller,
+        children: [
+          const HomePage(),
+          ConversationsScreen(),
+          const ProfilePage(),
+        ],
+      ),
     );
   }
 }
