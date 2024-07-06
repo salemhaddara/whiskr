@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       appBar: AppBar(
-        title: Text('Whisker'),
+        title: const Text('Whisker'),
       ),
       body: GridView.builder(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
