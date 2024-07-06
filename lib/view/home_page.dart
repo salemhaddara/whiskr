@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:whiskr/model/profile.dart';
 
 class HomePage extends StatefulWidget {
@@ -71,7 +70,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       appBar: AppBar(
-        title: const Text('Whisker'),
+        title: Text('Whisker'),
       ),
       body: GridView.builder(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -83,7 +82,7 @@ class _HomePageState extends State<HomePage> {
         itemCount: profiles.length,
         itemBuilder: (context, index) {
           final profile = profiles[index];
-          return ProfileTile(
+          return MessageGridTile(
             index: index,
             profile: profile,
             onTap: () => onTap(profile),
@@ -94,12 +93,12 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class ProfileTile extends StatefulWidget {
+class MessageGridTile extends StatefulWidget {
   final ProfileModel profile;
   final int index;
   final VoidCallback onTap;
 
-  const ProfileTile({
+  const MessageGridTile({
     super.key,
     required this.profile,
     required this.index,
@@ -107,79 +106,44 @@ class ProfileTile extends StatefulWidget {
   });
 
   @override
-  State<ProfileTile> createState() => _ProfileTileState();
+  State<MessageGridTile> createState() => _MessageGridTileState();
 }
 
-class _ProfileTileState extends State<ProfileTile> {
+class _MessageGridTileState extends State<MessageGridTile> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Stack(
-        children: [
-          Image.network(
-            widget.profile.photos.first,
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-              if (wasSynchronouslyLoaded) {
-                return child;
-              }
-              return Stack(
-                children: [
-                  Positioned.fill(
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey.withOpacity(0.3),
-                      highlightColor: Colors.grey.withOpacity(0.1),
-                      child: Container(color: Colors.black),
+    return Stack(
+      children: [
+        Image.network(
+          widget.profile.photos.first,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            color: Colors.black.withOpacity(0.5),
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      widget.profile.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: frame == null ? 0 : 1,
-                    child: child,
-                  ),
-                ],
-              );
-            },
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              // color: Colors.black.withOpacity(0.5),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.5),
-                ],
-              )),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.profile.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    widget.profile.dob.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
