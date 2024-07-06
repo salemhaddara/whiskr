@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whiskr/chats/chat_functions/conversationStream.dart';
 import 'package:whiskr/chats/chat_screen.dart';
 import 'package:whiskr/chats/chatsComponents/conversation_item.dart';
@@ -88,7 +89,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             topBar(
               size: size,
               text: "Conversations",
-              onBack: null,
+              onBack:
+              Navigator.of(context).canPop()?
+               (){
+                context.go("/");
+              }:null,
             ),
             const SizedBox(height: 2),
             if (error != null)

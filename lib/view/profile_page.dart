@@ -46,70 +46,80 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Builder(builder: (context) {
-                if (images.isEmpty) {
-                  return Center(
-                    child: InkWell(
-                      child: Icon(Icons.image),
-                      onTap: () async {
-                        pickImagesFromGallery();
-                      },
-                    ),
-                  );
-                } else {
-                  return Container(
-                    height: 150,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: images.length,
-                      shrinkWrap: true,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  child: Container(
-                                    width: 100.0,
-                                    height: 100.0,
-                                    margin: const EdgeInsets.all(8.0),
-                                    child: Image.network(
-                                      images[index],
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Icon(Icons.image);
-                                      },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Builder(builder: (context) {
+                  if (images.isEmpty) {
+                    return Center(
+                      child: InkWell(
+                        child: Icon(Icons.image),
+                        onTap: () async {
+                          pickImagesFromGallery();
+                        },
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      height: 120,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: images.length,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 2),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(Radius.circular(10))
+                                      ),
+                                      width: 100.0,
+                                      height: 100.0,
+                                      margin: const EdgeInsets.all(8.0),
+                                      child: ClipRRect(
+                                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                                        child: Image.network(
+                                        images[index],
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Icon(Icons.image);
+                                        },
+                                      ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            )
-                          ],
-                        );
-                      },
-                    ),
-                  );
-                }
-              }),
-              Text("Name"),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: TextFormField(
+                                ],
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    );
+                  }
+                }),
+                Text("Name"),
+                SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
                   /*             keyboardType: TextInputType.multiline,
                   maxLines: null, */
                   initialValue: name,
                   decoration: InputDecoration(
+                  
                     focusColor: Colors.white,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(1)),
+                        borderRadius: BorderRadius.circular(6),),
                     fillColor: Colors.grey,
                   ),
                   focusNode: focusNodeName,
@@ -127,21 +137,24 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (name == "" || name.isEmpty) {
                       return "name is required";
                     }
-
+                            
                     return null;
                   },
                 ),
-              ),
-              Text("Bio"),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: TextFormField(
+                SizedBox(
+                  height: 12,
+                ),
+                Text("Bio"),
+                 SizedBox(
+                  height: 8,
+                ),
+                TextFormField(
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   decoration: InputDecoration(
                     focusColor: Colors.white,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(1)),
+                        borderRadius: BorderRadius.circular(6)),
                     fillColor: Colors.grey,
                   ),
                   focusNode: bioFocusNode,
@@ -157,88 +170,92 @@ class _ProfilePageState extends State<ProfilePage> {
                     });
                   },
                 ),
-              ),
-              selectedDate == 0
-                  ? InkWell(
-                      onTap: () async {
-                        _selectDate(context);
-                      },
-                      child: Text("Year Of Birth"),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(selectedDate.toString()),
-                    ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("Type"),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: DropdownButtonFormField<AnimalType>(
-                  value: type,
-                  items: AnimalType.values.map((AnimalType value) {
-                    return DropdownMenuItem<AnimalType>(
-                      value: value,
-                      child: Text(value.name),
-                    );
-                  }).toList(),
-                  onChanged: (AnimalType? value) {
-                    if (value != null) {
-                      setState(() {
-                        type = value;
-                      });
-                    }
-                  },
-                  validator: (value) =>
-                      value == null ? 'Type is required' : null,
+                selectedDate == 0
+                    ? InkWell(
+                        onTap: () async {
+                          _selectDate(context);
+                        },
+                        child: Text("Year Of Birth"),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(selectedDate.toString()),
+                      ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("Type"),
                 ),
-              ),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      String uid = FirebaseAuth.instance.currentUser!.uid;
-                      ProfileModel profile = ProfileModel(
-                          uid: uid,
-                          name: name,
-                          bio: bio ?? '',
-                          photos: images.toSet(),
-                          dob: selectedDate,
-                          type: type!);
-                      if (widget.model == null) {
-                        FirebaseFirestore.instance
-                            .collection("profiles")
-                            .doc(uid)
-                            .set(profile.toJson());
-                        context.go('/');
-                      } else {
-                        FirebaseFirestore.instance
-                            .collection("profiles")
-                            .doc(uid)
-                            .update(profile.toJson());
-                      }
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profile Updated'),
-                        ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButtonFormField<AnimalType>(
+                    value: type,
+                    items: AnimalType.values.map((AnimalType value) {
+                      return DropdownMenuItem<AnimalType>(
+                        value: value,
+                        child: Text(value.name),
                       );
-                    }
-                  },
-                  child: const Text('Submit'),
+                    }).toList(),
+                    onChanged: (AnimalType? value) {
+                      if (value != null) {
+                        setState(() {
+                          type = value;
+                        });
+                      }
+                    },
+                    validator: (value) =>
+                        value == null ? 'Type is required' : null,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    FirebaseAuth.instance.signOut();
-                  },
-                  child: const Text('Sign Out'),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        String uid = FirebaseAuth.instance.currentUser!.uid;
+                        ProfileModel profile = ProfileModel(
+                            uid: uid,
+                            name: name,
+                            bio: bio ?? '',
+                            photos: images.toSet(),
+                            dob: selectedDate,
+                            type: type!);
+                        if (widget.model == null) {
+                          FirebaseFirestore.instance
+                              .collection("profiles")
+                              .doc(uid)
+                              .set(profile.toJson());
+                          context.go('/');
+                        } else {
+                          FirebaseFirestore.instance
+                              .collection("profiles")
+                              .doc(uid)
+                              .update(profile.toJson());
+                        }
+            
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profile Updated'),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Submit'),
+                  ),
                 ),
-              )
-            ],
+                const SizedBox(height: 32),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent
+                    ),
+                    onPressed: () async {
+                      FirebaseAuth.instance.signOut();
+                      context.go("/auth");
+                    },
+                    child: const Text('Sign Out',style: TextStyle(color: Colors.white),),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

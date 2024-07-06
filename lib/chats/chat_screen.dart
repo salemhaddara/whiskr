@@ -87,7 +87,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             itemBuilder: (context, index) {
                               return ChatMessage(
                                 text: _messages[index].text,
-                                isMyMessage: uid == _messages[index].senderId,
+                                isMyMessage: uid ==
+                                    _messages[index].senderId,
                                 time: formatDate
                                     .fromdatetoString(_messages[index].time),
                                 user2Id: uid==conversation!.user_id1?conversation!.user2_id:conversation!.user_id1,
