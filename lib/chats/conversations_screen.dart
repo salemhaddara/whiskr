@@ -39,7 +39,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     _subscription = FirebaseFirestore.instance
         .collection('chats')
         .where(Filter.or(
-          Filter("user_id", isEqualTo: userId),
+          Filter("user_id1", isEqualTo: userId),
           Filter("user2_id", isEqualTo: userId),
         ))
         .snapshots()
@@ -82,54 +82,51 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
       backgroundColor: Colors.white,
       body: Directionality(
         textDirection: TextDirection.ltr,
-        child: Container(
-          padding: EdgeInsets.only(top: size.height * .05),
-          child: Column(
-            children: [
-              topBar(
-                size: size,
-                text: "Conversations",
-                onBack: null,
-              ),
-              const SizedBox(height: 2),
-              if (error != null)
-                Expanded(
-                  child: Center(
-                    child: Text(error!),
-                  ),
-                )
-              else if (loading)
-                const Expanded(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              else
-                Expanded(
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: conversations.length,
-                    padding: const EdgeInsets.only(top: 0),
-                    itemBuilder: (context, index) {
-                      return ConversationItem(
-                        onClick: (conversation) async {
-                          ConversationsStream.markConversationAsRead(
-                              conversation.conversation_id,
-                              conversation.user_id1);
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) {
-                            return ChatScreen(
-                              conversationID: '',
-                            );
-                          }));
-                        },
-                        conversationInfo: conversations[index],
-                      );
-                    },
-                  ),
+        child: Column(
+          children: [
+            topBar(
+              size: size,
+              text: "Conversations",
+              onBack: null,
+            ),
+            const SizedBox(height: 2),
+            if (error != null)
+              Expanded(
+                child: Center(
+                  child: Text(error!),
                 ),
-            ],
-          ),
+              )
+            else if (loading)
+              const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: conversations.length,
+                  padding: const EdgeInsets.only(top: 0),
+                  itemBuilder: (context, index) {
+                    return ConversationItem(
+                      onClick: (conversation) async {
+                        ConversationsStream.markConversationAsRead(
+                            conversation.conversation_id,
+                            conversation.user_id1);
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return ChatScreen(
+                            conversationID: '',
+                          );
+                        }));
+                      },
+                      conversationInfo: conversations[index],
+                    );
+                  },
+                ),
+              ),
+          ],
         ),
       ),
     );

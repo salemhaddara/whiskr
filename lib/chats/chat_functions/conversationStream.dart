@@ -15,7 +15,7 @@ class ConversationsStream {
     yield* FirebaseFirestore.instance
         .collection('chats')
         .where(Filter.or(
-          Filter("user_id", isEqualTo: userId),
+          Filter("user_id1", isEqualTo: userId),
           Filter("user2_id", isEqualTo: userId),
         ))
         .snapshots()
