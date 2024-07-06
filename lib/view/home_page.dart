@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:whiskr/model/profile.dart';
 
 class HomePage extends StatefulWidget {
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage> {
         itemCount: profiles.length,
         itemBuilder: (context, index) {
           final profile = profiles[index];
-          return MessageGridTile(
+          return ProfileTile(
             index: index,
             profile: profile,
             onTap: () => onTap(profile),
@@ -93,12 +94,12 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class MessageGridTile extends StatefulWidget {
+class ProfileTile extends StatefulWidget {
   final ProfileModel profile;
   final int index;
   final VoidCallback onTap;
 
-  const MessageGridTile({
+  const ProfileTile({
     super.key,
     required this.profile,
     required this.index,
@@ -106,10 +107,10 @@ class MessageGridTile extends StatefulWidget {
   });
 
   @override
-  State<MessageGridTile> createState() => _MessageGridTileState();
+  State<ProfileTile> createState() => _ProfileTileState();
 }
 
-class _MessageGridTileState extends State<MessageGridTile> {
+class _ProfileTileState extends State<ProfileTile> {
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -119,25 +120,60 @@ class _MessageGridTileState extends State<MessageGridTile> {
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+            if (wasSynchronouslyLoaded) {
+              return child;
+            }
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey.withOpacity(0.3),
+                    highlightColor: Colors.grey.withOpacity(0.1),
+                    child: Container(color: Colors.black),
+                  ),
+                ),
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: frame == null ? 0 : 1,
+                  child: child,
+                ),
+              ],
+            );
+          },
         ),
         Positioned(
           bottom: 0,
           left: 0,
           right: 0,
           child: Container(
-            color: Colors.black.withOpacity(0.5),
+            // color: Colors.black.withOpacity(0.5),
             padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black.withOpacity(0.5),
+              ],
+            )),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      widget.profile.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+                Text(
+                  widget.profile.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  widget.profile.dob.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12
+                  ),
                 ),
               ],
             ),
