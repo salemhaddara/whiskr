@@ -19,4 +19,16 @@ class Conversation {
     required this.conversation_id,
     required this.user_notification_count,
   });
+  factory Conversation.fromMap(Map<String, dynamic> data) {
+    return Conversation(
+      user_name: data['username'],
+      user_profile: data['profile'],
+      last_message: data['last_message'],
+      last_use: data['last_use'],
+      user_id: data['user_id'],
+      user2_id: data['user2_id'],
+      conversation_id: '', // Provide a value or modify the logic to obtain it
+      user_notification_count: data['user_notification_count'] ?? 0,
+    );
+  }
 }

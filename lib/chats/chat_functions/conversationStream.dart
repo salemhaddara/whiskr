@@ -6,11 +6,7 @@ import 'package:whiskr/models/Conversation.dart';
 
 class ConversationsStream {
   Stream<List<Conversation>> getConversationsStream() async* {
-    //TODO : get it from the auth firebase
     String? userId = FirebaseAuth.instance.currentUser?.uid;
-
-    //TODO REDIRECTING THE USER TO LOGIN SCREEN
-    userId ??= 'JrjgGfXZFCgTQpejnYQtQHGAcSt1';
 
     yield* FirebaseFirestore.instance
         .collection('chats')
@@ -51,6 +47,44 @@ class ConversationsStream {
     } catch (e) {
       print('Error marking conversation as read: $e');
       return false; // Marking as read failed
+    }
+  }
+
+  Future<Conversation?> JoinChat(String conversationId, profile, name,
+      lastmessage, user2id, DateTime chatTime) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    CollectionReference userChats = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(userId)
+        .collection('userchats');
+
+    DocumentReference conversationRef = userChats.doc(conversationId);
+
+    DocumentSnapshot conversationSnapshot = await conversationRef.get();
+
+    if (conversationSnapshot.exists) {
+      Map<String, dynamic> conversationData =
+          conversationSnapshot.data() as Map<String, dynamic>;
+
+      return Conversation.fromMap(conversationData);
+    } else {
+      DateTime now = DateTime.now();
+
+      // Create the data to be added
+      Map<String, dynamic> newData = {
+        'last_use': now,
+        'profile': profile,
+        'username': name,
+        'last_message': lastmessage,
+        'user2_id': user2id,
+        'user_id': userId,
+        'user_notification_count': 0
+      };
+
+      // Set the data in the subcollection document
+      await conversationRef.set(newData);
+      return Conversation.fromMap(newData);
     }
   }
 }
