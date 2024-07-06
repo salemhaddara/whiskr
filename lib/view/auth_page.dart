@@ -1,5 +1,6 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -18,7 +19,12 @@ class _AuthPageState extends State<AuthPage> {
         providers: providers,
         actions: [
               AuthStateChangeAction<SignedIn>((context, state) {
-                Navigator.pushReplacementNamed(context, '/profile');
+                // Navigator.pushReplacementNamed(context, '/');
+                context.go("/");
+              }),
+              AuthStateChangeAction<UserCreated>((context, state) {
+                // Navigator.pushReplacementNamed(context, '/');
+                context.go("/profile");
               }),
             ],
       ),
