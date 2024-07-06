@@ -37,7 +37,7 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/chats',
-      builder: (context, state) => conversationsScreen(),
+      builder: (context, state) => ConversationsScreen(),
     ),
   ],
 );
