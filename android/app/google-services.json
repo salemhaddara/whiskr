@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968908516551",
+    "project_id": "whiskr-7a530",
+    "storage_bucket": "whiskr-7a530.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968908516551:android:45b64cdbfde86008f562e2",
+        "android_client_info": {
+          "package_name": "com.example.whiskr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp8kHLC8tI0qZN_lZqm3XkWmcops7ZM7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
