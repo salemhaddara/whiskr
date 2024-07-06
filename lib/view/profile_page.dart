@@ -226,6 +226,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: const Text('Submit'),
                 ),
+              ),
+              const SizedBox(height: 32),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    FirebaseAuth.instance.signOut();
+                  },
+                  child: const Text('Sign Out'),
+                ),
               )
             ],
           ),
