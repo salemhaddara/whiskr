@@ -139,11 +139,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   _handleSubmitted(String text) {
     _textController.clear();
+    String uid=FirebaseAuth.instance.currentUser!.uid;
     if (text.isNotEmpty) {
       stream.sendMessage(
         conversation!.conversation_id,
-        conversation!.user_id1,
-        conversation!.user2_id,
+        uid,
+        uid==conversation!.user2_id?conversation!.user_id1:conversation!.user2_id,
         text,
       );
     }
