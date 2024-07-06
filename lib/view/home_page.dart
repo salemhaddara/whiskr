@@ -3,7 +3,54 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:whiskr/model/profile.dart';
+
+class RootView extends StatefulWidget {
+  final Widget child;
+
+  const RootView({super.key, required this.child});
+
+  @override
+  State<RootView> createState() => _RootViewState();
+}
+
+class _RootViewState extends State<RootView> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          if (index == 0) {
+            context.go('/');
+          } else if (index == 1) {
+            context.go('/chats');
+          } else if (index == 2) {
+            context.go('/profile');
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+      appBar: AppBar(
+        title: const Text('Whisker'),
+      ),
+      body: widget.child,
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -43,62 +90,32 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) {
-          if (index == 0) {
-            context.go('/');
-          } else if (index == 1) {
-            context.go('/chats');
-          } else if (index == 2) {
-            context.go('/profile');
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 200,
+        childAspectRatio: 1,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
       ),
-      appBar: AppBar(
-        title: Text('Whisker'),
-      ),
-      body: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          childAspectRatio: 1,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: profiles.length,
-        itemBuilder: (context, index) {
-          final profile = profiles[index];
-          return MessageGridTile(
-            index: index,
-            profile: profile,
-            onTap: () => onTap(profile),
-          );
-        },
-      ),
+      itemCount: profiles.length,
+      itemBuilder: (context, index) {
+        final profile = profiles[index];
+        return ProfileTile(
+          index: index,
+          profile: profile,
+          onTap: () => onTap(profile),
+        );
+      },
     );
   }
 }
 
-class MessageGridTile extends StatefulWidget {
+class ProfileTile extends StatefulWidget {
   final ProfileModel profile;
   final int index;
   final VoidCallback onTap;
 
-  const MessageGridTile({
+  const ProfileTile({
     super.key,
     required this.profile,
     required this.index,
@@ -106,44 +123,79 @@ class MessageGridTile extends StatefulWidget {
   });
 
   @override
-  State<MessageGridTile> createState() => _MessageGridTileState();
+  State<ProfileTile> createState() => _ProfileTileState();
 }
 
-class _MessageGridTileState extends State<MessageGridTile> {
+class _ProfileTileState extends State<ProfileTile> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Image.network(
-          widget.profile.photos.first,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            color: Colors.black.withOpacity(0.5),
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      widget.profile.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Stack(
+        children: [
+          Image.network(
+            widget.profile.photos.first,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+              if (wasSynchronouslyLoaded) {
+                return child;
+              }
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey.withOpacity(0.3),
+                      highlightColor: Colors.grey.withOpacity(0.1),
+                      child: Container(color: Colors.black),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: frame == null ? 0 : 1,
+                    child: child,
+                  ),
+                ],
+              );
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              // color: Colors.black.withOpacity(0.5),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.5),
+                ],
+              )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.profile.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    widget.profile.dob.toString(),
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

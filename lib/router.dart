@@ -3,6 +3,7 @@ import 'package:whiskr/view/home_page.dart';
 import 'package:whiskr/view/profile_details_page.dart';
 import 'package:whiskr/view/profile_page.dart';
 
+import 'chats/conversations_screen.dart';
 import 'model/profile.dart';
 import 'view/auth_page.dart';
 
@@ -19,24 +20,33 @@ final GoRouter router = GoRouter(
   // },
   routes: [
     GoRoute(
-      path: '/',
-      builder: (context, state) => const HomePage(),
-      routes: [
-        GoRoute(
-          path: 'profile-details',
-          builder: (context, state) => ProfileDetailsPage(
-            profile: state.extra as ProfileModel,
-          ),
-        ),
-      ],
-    ),
-    GoRoute(
       path: '/auth',
       builder: (context, state) => const AuthPage(),
     ),
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => const ProfilePage(),
+    ShellRoute(
+      builder: (context, state, child) => RootView(child: child),
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const HomePage(),
+          routes: [
+            GoRoute(
+              path: 'profile-details',
+              builder: (context, state) => ProfileDetailsPage(
+                profile: state.extra as ProfileModel,
+              ),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '/chats',
+          builder: (context, state) => ConversationsScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfilePage(),
+        ),
+      ],
     ),
   ],
 );

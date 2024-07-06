@@ -7,15 +7,15 @@ import 'package:whiskr/chats/chatsComponents/conversation_item.dart';
 import 'package:whiskr/components/top_bar.dart';
 import 'package:whiskr/models/Conversation.dart';
 
-class conversationsScreen extends StatefulWidget {
+class ConversationsScreen extends StatefulWidget {
   String? payload;
-  conversationsScreen({super.key, this.payload});
+  ConversationsScreen({super.key, this.payload});
 
   @override
-  State<conversationsScreen> createState() => _conversationsScreenState();
+  State<ConversationsScreen> createState() => _ConversationsScreenState();
 }
 
-class _conversationsScreenState extends State<conversationsScreen> {
+class _ConversationsScreenState extends State<ConversationsScreen> {
   final stream = ConversationsStream();
 
   @override
