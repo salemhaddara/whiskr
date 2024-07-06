@@ -1,10 +1,14 @@
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:whiskr/model/profile.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,12 +22,16 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> images = [];
   String name = "";
   FocusNode focusNodeName = FocusNode();
-  DateTime selectedDate = DateTime.now();
+  FocusNode bioFocusNode = FocusNode();
+  int selectedDate = 0;
 
   final _formKey = GlobalKey<FormState>();
   XFile? pickedFile;
   TextEditingController? _nameController;
+  TextEditingController? _bioController;
   List<String> imagePaths = [];
+  AnimalType? type;
+  String? bio = "";
 
   @override
   void initState() {
@@ -36,134 +44,201 @@ class _ProfilePageState extends State<ProfilePage> {
     _nameController?.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Builder(builder: (context) {
-              if (images.isEmpty) {
-                return InkWell(
-                  child: Icon(Icons.image),
-                  onTap: () async {
-                    pickImagesFromGallery();
-                  },
-                );
-              } else {
-                return Container(
-                  width: MediaQuery.of(context).size.width * 0.80,
-                  child: ListView.builder(
-                    itemCount: images.length,
-                    shrinkWrap: true,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                child: Container(
-                                  width: 100.0,
-                                  height: 100.0,
-                                  margin: const EdgeInsets.all(8.0),
-                                  child: Image.network(
-                                    images[index],
-                                    fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Builder(builder: (context) {
+                if (images.isEmpty) {
+                  return Center(
+                    child: InkWell(
+                      child: Icon(Icons.image),
+                      onTap: () async {
+                        pickImagesFromGallery();
+                      },
+                    ),
+                  );
+                } else {
+                  return Container(
+                    height: 150,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: images.length,
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                  child: Container(
+                                    width: 100.0,
+                                    height: 100.0,
+                                    margin: const EdgeInsets.all(8.0),
+                                    child: Image.network(
+                                      images[index],
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Icon(Icons.image);
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        ],
-                      );
-                    },
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                }
+              }),
+              Text("Name"),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TextFormField(
+                  /*             keyboardType: TextInputType.multiline,
+                  maxLines: null, */
+                  decoration: InputDecoration(
+                    focusColor: Colors.white,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(1)),
+                    fillColor: Colors.grey,
                   ),
-                );
-              }
-            }),
-            Text("Name"),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: TextFormField(
-/*             keyboardType: TextInputType.multiline,
-                maxLines: null, */
-                decoration: InputDecoration(
-                  focusColor: Colors.white,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(1)),
-                  fillColor: Colors.grey,
+                  focusNode: focusNodeName,
+                  controller: _nameController,
+                  onChanged: (value) {
+                    setState(() {
+                      name = value;
+                    });
+                  },
+                  onSaved: (value) {
+                    setState(() {
+                      name = value!;
+                    });
+                  },
+                  validator: (value) {
+                    if (name == "" || name.isEmpty) {
+                      return "name is required";
+                    }
+                  },
                 ),
-                focusNode: focusNodeName,
-                controller: _nameController,
-                onChanged: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
-                onSaved: (value) {
-                  setState(() {
-                    name = value!;
-                  });
-                },
               ),
-            ),
-            Text("Bio"),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: TextFormField(
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                decoration: InputDecoration(
-                  focusColor: Colors.white,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(1)),
-                  fillColor: Colors.grey,
+              Text("Bio"),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TextFormField(
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    focusColor: Colors.white,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(1)),
+                    fillColor: Colors.grey,
+                  ),
+                  focusNode: bioFocusNode,
+                  controller: _bioController,
+                  onChanged: (value) {
+                    setState(() {
+                      bio = value;
+                    });
+                  },
+                  onSaved: (value) {
+                    setState(() {
+                      bio = value!;
+                    });
+                  },
                 ),
-                focusNode: focusNodeName,
-                controller: _nameController,
-                onChanged: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
-                onSaved: (value) {
-                  setState(() {
-                    name = value!;
-                  });
-                },
               ),
-            ),
-            InkWell(
-              onTap: () async {
-                _selectDate(context);
-              },
-              child: Text("Date of Birth"),
-            )
-          ],
+              selectedDate == 0
+                  ? InkWell(
+                      onTap: () async {
+                        _selectDate(context);
+                      },
+                      child: Text("Year Of Birth"),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(selectedDate.toString()),
+                    ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Type"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: DropdownButtonFormField<AnimalType>(
+                  value: type,
+                  items: AnimalType.values.map((AnimalType value) {
+                    return DropdownMenuItem<AnimalType>(
+                      value: value,
+                      child: Text(value.name),
+                    );
+                  }).toList(),
+                  onChanged: (AnimalType? value) {
+                    if (value != null) {
+                      setState(() {
+                        type = value;
+                      });
+                    }
+                  },
+                  validator: (value) =>
+                      value == null ? 'Type is required' : null,
+                ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      String uid = FirebaseAuth.instance.currentUser!.uid;
+                      var profile = ProfileModel(
+                          uid: uid,
+                          name: name,
+                          bio: bio ?? '',
+                          photos: images.toSet(),
+                          dob: selectedDate,
+                          type: type!);
+
+                      FirebaseFirestore.instance
+                          .collection("profiles")
+                          .doc(uid)
+                          .set(profile.toJson());
+                    }
+                  },
+                  child: const Text('Submit'),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  _selectDate(BuildContext context) async {
-    var picked = await showDatePicker(
+  void _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
       context: context,
       firstDate: DateTime(1800),
       lastDate: DateTime.now(),
-      initialEntryMode: DatePickerEntryMode.input,
       errorFormatText: 'Enter valid date',
       errorInvalidText: 'Enter date in valid range',
     );
-    if (picked != null && picked != selectedDate)
+    if (picked != null || picked!.year != 0) {
       setState(() {
-        selectedDate = picked;
+        selectedDate = picked.year;
       });
+    }
   }
 
   Future<void> pickImagesFromGallery() async {
