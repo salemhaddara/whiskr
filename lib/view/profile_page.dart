@@ -104,6 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: TextFormField(
                   /*             keyboardType: TextInputType.multiline,
                   maxLines: null, */
+                  initialValue: name,
                   decoration: InputDecoration(
                     focusColor: Colors.white,
                     border: OutlineInputBorder(
@@ -125,6 +126,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (name == "" || name.isEmpty) {
                       return "name is required";
                     }
+
+                    return null;
                   },
                 ),
               ),
@@ -141,6 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     fillColor: Colors.grey,
                   ),
                   focusNode: bioFocusNode,
+                  initialValue: bio,
                   onChanged: (value) {
                     setState(() {
                       bio = value;
@@ -194,18 +198,30 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       String uid = FirebaseAuth.instance.currentUser!.uid;
-                      var profile = ProfileModel(
+                      ProfileModel profile = ProfileModel(
                           uid: uid,
                           name: name,
                           bio: bio ?? '',
                           photos: images.toSet(),
                           dob: selectedDate,
                           type: type!);
+                      if (widget.model == null) {
+                        FirebaseFirestore.instance
+                            .collection("profiles")
+                            .doc(uid)
+                            .set(profile.toJson());
+                      } else {
+                        FirebaseFirestore.instance
+                            .collection("profiles")
+                            .doc(uid)
+                            .update(profile.toJson());
+                      }
 
-                      FirebaseFirestore.instance
-                          .collection("profiles")
-                          .doc(uid)
-                          .set(profile.toJson());
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profile Updated'),
+                        ),
+                      );
                     }
                   },
                   child: const Text('Submit'),

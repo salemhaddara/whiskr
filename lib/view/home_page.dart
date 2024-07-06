@@ -30,8 +30,10 @@ class _RootViewState extends State<RootView> {
     super.initState();
 
     ConversationsStream.getProfile(FirebaseAuth.instance.currentUser!.uid)
-        .then((value) {})
-        .catchError((error) {
+        .then((value) {
+      myModel = value;
+      setState(() {});
+    }).catchError((error) {
       context.go('/profile');
     });
   }
@@ -85,7 +87,7 @@ class _RootViewState extends State<RootView> {
         children: [
           const HomePage(),
           ConversationsScreen(),
-          const ProfilePage(),
+          ProfilePage(model: myModel),
         ],
       ),
     );
