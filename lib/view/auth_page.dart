@@ -11,9 +11,17 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
+    final providers = [EmailAuthProvider()];
     return Scaffold(
       appBar: AppBar(title: Text("Authentication"),),
-      body: SignInScreen(),
+      body: SignInScreen(
+        providers: providers,
+        actions: [
+              AuthStateChangeAction<SignedIn>((context, state) {
+                Navigator.pushReplacementNamed(context, '/profile');
+              }),
+            ],
+      ),
     );
   }
 }

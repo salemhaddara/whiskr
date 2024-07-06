@@ -1,3 +1,4 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -10,6 +11,13 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final providers = [EmailAuthProvider()];
+    return Scaffold(
+      appBar: AppBar(title: Text("Profile"),
+      
+      ),
+      body: ProfileScreen(
+      ),
+    );
   }
 }
