@@ -122,7 +122,7 @@ class ProfileDetailsPage extends StatelessWidget {
       bottomNavigationBar:  Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton(onPressed: () {
-              }, child: const Text("Start Chat")),
+              }, child: const Text("Start Chat now")),
       ),
     );
   }
