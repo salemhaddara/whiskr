@@ -49,6 +49,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           loading = false;
           setState(() {});
         }
+        conversations.clear();
         for (var doc in snapshot.docs) {
           Map<String, dynamic> data = doc.data();
           final Conversation conversation = Conversation.fromJson(data);
