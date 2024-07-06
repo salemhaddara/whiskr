@@ -1,7 +1,6 @@
 // ignore_for_file: must_be_immutable, library_private_types_in_public_api,file_names
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:whiskr/chats/chat_functions/chatStream.dart';
 import 'package:whiskr/chats/chat_functions/conversationStream.dart';
@@ -88,11 +87,14 @@ class _ChatScreenState extends State<ChatScreen> {
                             itemBuilder: (context, index) {
                               return ChatMessage(
                                 text: _messages[index].text,
-                                isMyMessage: conversation!.user_id1 ==
-                                    _messages[index].senderId,
+                                isMyMessage: uid == conversation!.user2_id
+                                    ? (conversation!.user2_id ==
+                                        _messages[index].senderId)
+                                    : (conversation!.user_id1 ==
+                                        _messages[index].senderId),
                                 time: formatDate
                                     .fromdatetoString(_messages[index].time),
-                                user2Id: conversation!.user_profile1,
+                                user2Id: uid==conversation!.user_id1?conversation!.user2_id:conversation!.user_id1,
                               );
                             },
                           );

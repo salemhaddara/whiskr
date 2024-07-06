@@ -4,57 +4,9 @@ import 'package:whiskr/model/profile.dart';
 import 'package:whiskr/models/Conversation.dart';
 
 class ConversationsStream {
-  Stream<List<Conversation>> getConversationsStream() async* {
-    String? userId = FirebaseAuth.instance.currentUser?.uid;
 
-    if (userId == null) {
-      yield [];
-      return;
-    }
 
-    yield* FirebaseFirestore.instance
-        .collection('chats')
-        .where(Filter.or(
-          Filter("user_id1", isEqualTo: userId),
-          Filter("user2_id", isEqualTo: userId),
-        ))
-        .snapshots()
-        .asyncMap((snapshot) async {
-      List<Conversation> conversations = [];
-      print('snapshot.docs: ${snapshot.docs.length}');
-      for (var doc in snapshot.docs) {
-        Map<String, dynamic> data = doc.data();
 
-        // Fetch user2's profile to get the username
-        ProfileModel? user2Profile = await getProfile(data['user2_id']);
-
-        if (user2Profile != null) {
-          conversations.add(Conversation.fromJson(data));
-        } else {
-          throw Exception("The user doesn't have a username");
-        }
-      }
-      return conversations;
-    });
-  }
-
-  static Future<bool> markConversationAsRead(
-      String conversationId, String userId) async {
-    try {
-      DocumentReference conversationRef = FirebaseFirestore.instance
-          .collection('chats')
-          .doc(userId)
-          .collection('userchats')
-          .doc(conversationId);
-
-      await conversationRef.update({'user_notification_count': 0});
-
-      return true; // Marked as read successfully
-    } catch (e) {
-      print('Error marking conversation as read: $e');
-      return false; // Marking as read failed
-    }
-  }
 
   static Future<Conversation> getChat(String chatID) async {
     return (FirebaseFirestore.instance.collection('chats').doc(chatID).get())
@@ -74,8 +26,13 @@ class ConversationsStream {
     final query = await FirebaseFirestore.instance
         .collection('chats')
         .where(Filter.or(
+      Filter.and(
           Filter("user_id1", isEqualTo: myID),
-          Filter("user2_id", isEqualTo: myID),
+          Filter("user2_id", isEqualTo: theirID),),
+        Filter.and(
+          Filter("user_id1", isEqualTo: theirID),
+          Filter("user2_id", isEqualTo: myID),)
+
         ))
         .get();
 
