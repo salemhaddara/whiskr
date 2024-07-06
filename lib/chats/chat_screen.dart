@@ -92,6 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 time: formatDate
                                     .fromdatetoString(_messages[index].time),
                                 user2Id: uid==conversation!.user_id1?conversation!.user2_id:conversation!.user_id1,
+                                profile: uid==conversation!.user_id1?conversation!.user_profile2:conversation!.user_profile1,
                               );
                             },
                           );

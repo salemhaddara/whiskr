@@ -8,12 +8,16 @@ class ChatMessage extends StatelessWidget {
   final bool isMyMessage;
   final String time;
   final String? user2Id;
-  const ChatMessage(
-      {super.key,
-      required this.text,
-      required this.isMyMessage,
-      required this.time,
-      required this.user2Id});
+  final String? profile;
+
+  const ChatMessage({
+    super.key,
+    required this.text,
+    required this.isMyMessage,
+    required this.time,
+    required this.user2Id,
+    required this.profile,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +43,13 @@ class ChatMessage extends StatelessWidget {
                   ),
                   child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      child: user2Id == null || user2Id!.isEmpty
-                          ? const Icon(Icons.person)
-                          : Image.network(
-                              user2Id!,
-                              fit: BoxFit.cover,
-                            )),
+                      child:
+                          profile == null || user2Id == null || user2Id!.isEmpty
+                              ? const Icon(Icons.person)
+                              : Image.network(
+                                  profile!,
+                                  fit: BoxFit.cover,
+                                )),
                 ),
               Column(
                 children: [
