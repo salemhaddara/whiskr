@@ -58,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 size: size,
                 text: name ?? 'Loading',
                 onBack: () {
-                  context.go('/');
+                  Navigator.maybePop(context);
                 },
               ),
               if (conversation == null)

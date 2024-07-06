@@ -111,13 +111,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   itemBuilder: (context, index) {
                     return ConversationItem(
                       onClick: (conversation) async {
-                        ConversationsStream.markConversationAsRead(
-                            conversation.conversation_id,
-                            conversation.user_id1);
                         Navigator.of(context)
                             .push(MaterialPageRoute(builder: (context) {
                           return ChatScreen(
-                            conversationID: '',
+                            conversationID: conversation.conversation_id,
                           );
                         }));
                       },

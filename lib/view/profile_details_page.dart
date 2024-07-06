@@ -161,7 +161,7 @@ class _ProfileDetailsPageState extends State<ProfileDetailsPage> {
                   await ConversationsStream.newChat(widget.profile.uid);
 
               if (!mounted) return;
-              context.go('/chats/$conversationID');
+              context.go('/chat', extra: conversationID);
             },
             child: const Text("Start Chat now")),
       ),

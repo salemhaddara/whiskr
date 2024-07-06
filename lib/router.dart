@@ -39,16 +39,10 @@ final GoRouter router = GoRouter(
             profile: state.extra as ProfileModel,
           ),
         ),
-      ],
-    ),
-    GoRoute(
-      path: '/chats',
-      builder: (context, state) => ConversationsScreen(),
-      routes: [
         GoRoute(
-          path: ':id',
+          path: 'chat',
           builder: (context, state) =>
-              ChatScreen(conversationID: state.pathParameters['id']!),
+              ChatScreen(conversationID: state.extra as String),
         ),
       ],
     ),
