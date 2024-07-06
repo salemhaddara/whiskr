@@ -39,11 +39,8 @@ class chatStream {
         'text': text,
         'time': currentTime,
       });
-      DocumentReference conversationRef = FirebaseFirestore.instance
-          .collection('chats')
-          .doc(senderId)
-          .collection('userchats')
-          .doc(conversationId);
+      DocumentReference conversationRef =
+          FirebaseFirestore.instance.collection('chats').doc(conversationId);
       conversationRef.update({
         'last_use': currentTime,
         'last_message': text,

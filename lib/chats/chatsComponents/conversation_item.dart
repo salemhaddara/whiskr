@@ -43,11 +43,11 @@ class ConversationItem extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8)),
-                          child: conversationInfo.user_profile == null ||
-                                  conversationInfo.user_profile!.isEmpty
+                          child: conversationInfo.user_profile1 == null ||
+                                  conversationInfo.user_profile1!.isEmpty
                               ? const Icon(Icons.person_2_outlined)
                               : Image.network(
-                                  conversationInfo.user_profile!,
+                                  conversationInfo.user_profile1!,
                                   fit: BoxFit.cover,
                                 ),
                         ),
@@ -64,7 +64,7 @@ class ConversationItem extends StatelessWidget {
                                 children: [
                                   text400normal(
                                       align: TextAlign.start,
-                                      text: conversationInfo.user_name,
+                                      text: conversationInfo.user_name1,
                                       fontsize: 16,
                                       color: Colors.black),
                                   const Spacer(),

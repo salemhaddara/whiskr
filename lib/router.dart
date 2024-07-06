@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whiskr/chats/conversations_screen.dart';
 import 'package:whiskr/view/home_page.dart';
 import 'package:whiskr/view/profile_details_page.dart';
 
@@ -33,6 +34,10 @@ final GoRouter router = GoRouter(
           ),
         ),
       ]
+    ),
+    GoRoute(
+      path: '/chats',
+      builder: (context, state) => conversationsScreen(),
     ),
   ],
 );

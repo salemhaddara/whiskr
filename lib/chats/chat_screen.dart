@@ -27,7 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
-    String myId = widget.conversation.user_id;
+    String myId = widget.conversation.user_id1;
     return Scaffold(
       body: Directionality(
         textDirection: TextDirection.ltr,
@@ -36,7 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: <Widget>[
               topBar(
                 size: size,
-                text: widget.conversation.user_name,
+                text: widget.conversation.user_name1,
               ),
               Expanded(
                   child: StreamBuilder(
@@ -65,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               isMyMessage: myId == _messages[index].senderId,
                               time: formatDate
                                   .fromdatetoString(_messages[index].time),
-                              user2Id: widget.conversation.user_profile,
+                              user2Id: widget.conversation.user_profile1,
                             );
                           },
                         );
@@ -116,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isNotEmpty) {
       stream.sendMessage(
         widget.conversation.conversation_id,
-        widget.conversation.user_id,
+        widget.conversation.user_id1,
         widget.conversation.user2_id,
         text,
       );

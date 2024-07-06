@@ -61,7 +61,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                   onClick: (conversation) async {
                                     stream.markConversationAsRead(
                                         conversation.conversation_id,
-                                        conversation.user_id);
+                                        conversation.user_id1);
                                     Navigator.of(context).push(
                                         MaterialPageRoute(builder: (context) {
                                       return ChatScreen(
@@ -69,19 +69,22 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                                     }));
                                   },
                                   conversationInfo: Conversation(
-                                      user_name: conversations[index].user_name,
-                                      user_profile:
-                                          conversations[index].user_profile,
+                                      user_name1:
+                                          conversations[index].user_name1,
+                                      user_profile1:
+                                          conversations[index].user_profile1,
                                       last_message:
                                           conversations[index].last_message,
                                       last_use: conversations[index].last_use,
-                                      user_id: conversations[index].user_id,
+                                      user_id1: conversations[index].user_id1,
                                       conversation_id:
                                           conversations[index].conversation_id,
                                       user2_id: conversations[index].user2_id,
                                       user_notification_count:
                                           conversations[index]
-                                              .user_notification_count));
+                                              .user_notification_count,
+                                      user_name2:
+                                          conversations[index].user_name2));
                             },
                           ),
                         );
