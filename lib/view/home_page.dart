@@ -113,73 +113,73 @@ class ProfileTile extends StatefulWidget {
 class _ProfileTileState extends State<ProfileTile> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Image.network(
-          widget.profile.photos.first,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-            if (wasSynchronouslyLoaded) {
-              return child;
-            }
-            return Stack(
-              children: [
-                Positioned.fill(
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.grey.withOpacity(0.3),
-                    highlightColor: Colors.grey.withOpacity(0.1),
-                    child: Container(color: Colors.black),
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Stack(
+        children: [
+          Image.network(
+            widget.profile.photos.first,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+              if (wasSynchronouslyLoaded) {
+                return child;
+              }
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey.withOpacity(0.3),
+                      highlightColor: Colors.grey.withOpacity(0.1),
+                      child: Container(color: Colors.black),
+                    ),
                   ),
-                ),
-                AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity: frame == null ? 0 : 1,
-                  child: child,
-                ),
-              ],
-            );
-          },
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            // color: Colors.black.withOpacity(0.5),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.black.withOpacity(0.5),
-              ],
-            )),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.profile.name,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: frame == null ? 0 : 1,
+                    child: child,
                   ),
-                ),
-                Text(
-                  widget.profile.dob.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12
+                ],
+              );
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              // color: Colors.black.withOpacity(0.5),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.5),
+                ],
+              )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.profile.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    widget.profile.dob.toString(),
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
