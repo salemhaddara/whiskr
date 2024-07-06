@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whiskr/model/profile.dart';
@@ -210,6 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             .collection("profiles")
                             .doc(uid)
                             .set(profile.toJson());
+                        context.go('/');
                       } else {
                         FirebaseFirestore.instance
                             .collection("profiles")
