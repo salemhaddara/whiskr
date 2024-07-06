@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:whiskr/chats/chat_functions/conversationStream.dart';
 import 'package:whiskr/model/profile.dart';
 import 'package:whiskr/view/profile_page.dart';
 
 import '../chats/conversations_screen.dart';
 
 class RootView extends StatefulWidget {
-
   const RootView({super.key});
 
   @override
@@ -20,6 +21,20 @@ class RootView extends StatefulWidget {
 class _RootViewState extends State<RootView> {
   final PageController controller = PageController();
   int index = 0;
+
+  bool loading = true;
+  ProfileModel? myModel;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ConversationsStream.getProfile(FirebaseAuth.instance.currentUser!.uid)
+        .then((value) {})
+        .catchError((error) {
+      context.go('/profile');
+    });
+  }
 
   @override
   void dispose() {
@@ -95,9 +110,12 @@ class _HomePageState extends State<HomePage> {
         FirebaseFirestore.instance.collection('profiles').snapshots().listen(
       (event) {
         profiles.clear();
-        profiles.addAll(
-          event.docs.map((e) => ProfileModel.fromJson(e.data())).toList(),
-        );
+        profiles
+          ..addAll(
+            event.docs.map((e) => ProfileModel.fromJson(e.data())).toList(),
+          )
+          ..removeWhere((profile) =>
+              profile.uid == FirebaseAuth.instance.currentUser!.uid);
         setState(() {});
       },
     );

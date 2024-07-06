@@ -7,7 +7,15 @@ class topBar extends StatelessWidget {
   Size size;
   Color? backColor;
   String? text;
-  topBar({super.key, required this.size, this.text, this.backColor});
+  final VoidCallback? onBack;
+
+  topBar({
+    super.key,
+    required this.size,
+    this.text,
+    this.backColor,
+    required this.onBack,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +34,10 @@ class topBar extends StatelessWidget {
                   bottomRight: Radius.circular(24))),
           padding: const EdgeInsets.all(16),
           child: Row(children: [
-            const BackButton(),
+            if (onBack != null)
+              BackButton(
+                onPressed: onBack,
+              ),
             text400normal(
               text: text ?? '',
               fontsize: 20,

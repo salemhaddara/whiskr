@@ -1,37 +1,30 @@
-import 'dart:ffi';
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whiskr/model/profile.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final ProfileModel? model;
+
+  const ProfilePage({super.key, this.model});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  @override
-  List<String> images = [];
-  String name = "";
+  late List<String> images = widget.model?.photos.toList() ?? [];
+  late String name = widget.model?.name ?? '';
   FocusNode focusNodeName = FocusNode();
   FocusNode bioFocusNode = FocusNode();
-  int selectedDate = 0;
+  late int selectedDate = widget.model?.dob ?? 0;
 
   final _formKey = GlobalKey<FormState>();
-  XFile? pickedFile;
-  TextEditingController? _nameController;
-  TextEditingController? _bioController;
-  List<String> imagePaths = [];
-  AnimalType? type;
-  String? bio = "";
+  late AnimalType? type = widget.model?.type;
+  late String? bio = widget.model?.bio ?? '';
 
   @override
   void initState() {
@@ -41,7 +34,8 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     super.dispose();
-    _nameController?.dispose();
+    focusNodeName.dispose();
+    bioFocusNode.dispose();
   }
 
   @override
@@ -117,7 +111,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     fillColor: Colors.grey,
                   ),
                   focusNode: focusNodeName,
-                  controller: _nameController,
                   onChanged: (value) {
                     setState(() {
                       name = value;
@@ -148,7 +141,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     fillColor: Colors.grey,
                   ),
                   focusNode: bioFocusNode,
-                  controller: _bioController,
                   onChanged: (value) {
                     setState(() {
                       bio = value;

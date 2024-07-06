@@ -1,17 +1,20 @@
 // ignore_for_file: must_be_immutable, library_private_types_in_public_api,file_names
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:whiskr/chats/chat_functions/chatStream.dart';
+import 'package:whiskr/chats/chat_functions/conversationStream.dart';
+import 'package:whiskr/chats/chat_functions/formatDate.dart';
 import 'package:whiskr/chats/chatsComponents/chat_message.dart';
 import 'package:whiskr/components/top_bar.dart';
 import 'package:whiskr/models/Conversation.dart';
 import 'package:whiskr/models/Message.dart';
-import 'package:whiskr/chats/chat_functions/formatDate.dart';
 
 class ChatScreen extends StatefulWidget {
-  Conversation conversation;
+  String conversationID;
 
-  ChatScreen({super.key, required this.conversation});
+  ChatScreen({super.key, required this.conversationID});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -24,10 +27,27 @@ class _ChatScreenState extends State<ChatScreen> {
   final stream = chatStream();
   String doctorToken = '';
 
+  Conversation? conversation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ConversationsStream.getChat(widget.conversationID).then((chat) {
+      conversation = chat;
+      if (mounted) setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
-    String myId = widget.conversation.user_id1;
+    final String uid = FirebaseAuth.instance.currentUser!.uid;
+    final String? name = conversation == null
+        ? null
+        : (conversation?.user_name2 == uid
+            ? conversation!.user_name1
+            : conversation!.user_name2);
     return Scaffold(
       body: Directionality(
         textDirection: TextDirection.ltr,
@@ -36,40 +56,47 @@ class _ChatScreenState extends State<ChatScreen> {
             children: <Widget>[
               topBar(
                 size: size,
-                text: widget.conversation.user_name1,
+                text: name ?? 'Loading',
+                onBack: () {
+                  context.go('/');
+                },
               ),
-              Expanded(
-                  child: StreamBuilder(
-                      stream: stream.getMessagesStream(
-                          widget.conversation.conversation_id),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List<Message> newMessages =
-                              List.from(snapshot.data ?? []);
-                          newMessages.removeWhere((newMessage) => _messages.any(
-                              (existingMessage) =>
-                                  newMessage.time == existingMessage.time &&
-                                  newMessage.text == existingMessage.text &&
-                                  newMessage.senderId ==
-                                      existingMessage.senderId));
+              if (conversation == null)
+                const Center(child: CircularProgressIndicator())
+              else
+                Expanded(
+                    child: StreamBuilder(
+                        stream: stream
+                            .getMessagesStream(conversation!.conversation_id),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            List<Message> newMessages =
+                                List.from(snapshot.data ?? []);
+                            newMessages.removeWhere((newMessage) =>
+                                _messages.any((existingMessage) =>
+                                    newMessage.time == existingMessage.time &&
+                                    newMessage.text == existingMessage.text &&
+                                    newMessage.senderId ==
+                                        existingMessage.senderId));
 
-                          _messages.insertAll(0, newMessages);
-                        }
-                        return ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: _messages.length,
-                          reverse: true,
-                          itemBuilder: (context, index) {
-                            return ChatMessage(
-                              text: _messages[index].text,
-                              isMyMessage: myId == _messages[index].senderId,
-                              time: formatDate
-                                  .fromdatetoString(_messages[index].time),
-                              user2Id: widget.conversation.user_profile1,
-                            );
-                          },
-                        );
-                      })),
+                            _messages.insertAll(0, newMessages);
+                          }
+                          return ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: _messages.length,
+                            reverse: true,
+                            itemBuilder: (context, index) {
+                              return ChatMessage(
+                                text: _messages[index].text,
+                                isMyMessage: conversation!.user_id1 ==
+                                    _messages[index].senderId,
+                                time: formatDate
+                                    .fromdatetoString(_messages[index].time),
+                                user2Id: conversation!.user_profile1,
+                              );
+                            },
+                          );
+                        })),
               const Divider(height: 1.0),
               _buildTextComposer(),
             ],
@@ -115,9 +142,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _textController.clear();
     if (text.isNotEmpty) {
       stream.sendMessage(
-        widget.conversation.conversation_id,
-        widget.conversation.user_id1,
-        widget.conversation.user2_id,
+        conversation!.conversation_id,
+        conversation!.user_id1,
+        conversation!.user2_id,
         text,
       );
     }

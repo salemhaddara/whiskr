@@ -21,27 +21,15 @@ class ConversationsStream {
         .snapshots()
         .asyncMap((snapshot) async {
       List<Conversation> conversations = [];
+      print('snapshot.docs: ${snapshot.docs.length}');
       for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data();
-        DateTime lastUse = (data['last_use'] as Timestamp).toDate();
 
         // Fetch user2's profile to get the username
-        ProfileModel? user2Profile = await getMyUsername(data['user2_id']);
+        ProfileModel? user2Profile = await getProfile(data['user2_id']);
 
         if (user2Profile != null) {
-          conversations.add(Conversation(
-            user_name1: userId == data['user_id']
-                ? data['username1']
-                : data['username2'],
-            user_profile1: data['profile'],
-            last_message: data['last_message'],
-            last_use: lastUse,
-            user2_id: data['user2_id'],
-            user_id1: data['user_id'],
-            conversation_id: doc.id,
-            user_notification_count: data['user_notification_count'],
-            user_name2: user2Profile.name,
-          ));
+          conversations.add(Conversation.fromJson(data));
         } else {
           throw Exception("The user doesn't have a username");
         }
@@ -50,7 +38,7 @@ class ConversationsStream {
     });
   }
 
-  Future<bool> markConversationAsRead(
+  static Future<bool> markConversationAsRead(
       String conversationId, String userId) async {
     try {
       DocumentReference conversationRef = FirebaseFirestore.instance
@@ -68,7 +56,59 @@ class ConversationsStream {
     }
   }
 
-  Future<Conversation?> joinChat(
+  static Future<Conversation> getChat(String chatID) async {
+    return (FirebaseFirestore.instance.collection('chats').doc(chatID).get())
+        .then((snapshot) {
+      final data = snapshot.data();
+
+      return Conversation.fromJson(data!);
+    });
+  }
+
+  static Future<String> newChat(String theirID) async {
+    final String myID = FirebaseAuth.instance.currentUser!.uid;
+    final ProfileModel myModel = await getProfile(myID);
+    final ProfileModel theirModel = await getProfile(theirID);
+    DateTime now = DateTime.now();
+
+    final query = await FirebaseFirestore.instance
+        .collection('chats')
+        .where(Filter.or(
+          Filter("user_id1", isEqualTo: myID),
+          Filter("user2_id", isEqualTo: myID),
+        ))
+        .get();
+
+    if (query.size == 0) {
+      CollectionReference userChats =
+          FirebaseFirestore.instance.collection('chats');
+
+      final DocumentReference<Object?> snapshot =
+          await userChats.add(Conversation(
+        last_message: '',
+        user_profile1: myModel.photos.firstOrNull,
+        user_profile2: theirModel.photos.firstOrNull,
+        last_use: now,
+        user_id1: myID,
+        user2_id: theirID,
+        user_name1: myModel.name,
+        user_name2: theirModel.name,
+        conversation_id: '',
+        user_notification_count: 0,
+      ).toJson());
+
+      await userChats.doc(snapshot.id).update({
+        'conversation_id': snapshot.id,
+      });
+
+      return snapshot.id;
+    } else {
+      // Return id of existing conversation.
+      return query.docs.first.id;
+    }
+  }
+
+  static Future<Conversation?> joinChat(
       String conversationId,
       String profile,
       String name,
@@ -77,10 +117,8 @@ class ConversationsStream {
       DateTime chatTime) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
-    CollectionReference userChats = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(userId)
-        .collection('userchats');
+    CollectionReference userChats =
+        FirebaseFirestore.instance.collection('chats');
 
     DocumentReference conversationRef = userChats.doc(conversationId);
 
@@ -90,7 +128,7 @@ class ConversationsStream {
       Map<String, dynamic> conversationData =
           conversationSnapshot.data() as Map<String, dynamic>;
 
-      return Conversation.fromMap(conversationData);
+      return Conversation.fromJson(conversationData);
     } else {
       DateTime now = DateTime.now();
 
@@ -107,31 +145,19 @@ class ConversationsStream {
 
       // Set the data in the subcollection document
       await conversationRef.set(newData);
-      return Conversation.fromMap(newData);
+      return Conversation.fromJson(newData);
     }
   }
 
-  Future<ProfileModel?> getMyUsername(String userId) async {
-    try {
-      // Fetch the document from the "profiles" collection
-      DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-          await FirebaseFirestore.instance
-              .collection("profiles")
-              .doc(userId)
-              .get();
+  static Future<ProfileModel> getProfile(String userId) async {
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+        await FirebaseFirestore.instance
+            .collection("profiles")
+            .doc(userId)
+            .get();
 
-      if (documentSnapshot.exists) {
-        var document = documentSnapshot.data()!;
-        ProfileModel profile = ProfileModel.fromJson({...document});
-        return profile;
-      } else {
-        // Handle the case where the document does not exist
-        return null;
-      }
-    } catch (e) {
-      // Handle any errors that occur during the fetch
-      print("Error fetching user data: $e");
-      return null;
-    }
+    var document = documentSnapshot.data()!;
+    final ProfileModel profile = ProfileModel.fromJson({...document});
+    return profile;
   }
 }
