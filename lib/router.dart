@@ -21,6 +21,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/',
       builder: (context, state) => const HomePage(),
+      routes: [
+        GoRoute(
+          path: 'profile-details',
+          builder: (context, state) => ProfileDetailsPage(
+            profile: state.extra as ProfileModel,
+          ),
+        ),
+      ],
     ),
     GoRoute(
       path: '/auth',
@@ -29,12 +37,6 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfilePage(),
-    ),
-    GoRoute(
-      path: '/profile-details',
-      builder: (context, state) => ProfileDetailsPage(
-        profile: state.extra as ProfileModel,
-      ),
     ),
   ],
 );
